@@ -48,8 +48,8 @@ class SupplierDeleteView(DeleteView):
 
 class SupplierCSVExportView(View):
     """
-    Retorna um arquivo CSV contendo a lista de 'supplier', 
-    mas respeitando o mesmo filtro usado na supplierListView.
+    Retorna um arquivo CSV contendo a lista de 'Supplier', 
+    mas respeitando o mesmo filtro usado na SupplierListView.
     """
     def get(self, request, *args, **kwargs):
         # 1. Capturar o parâmetro 'name' da URL (caso exista).
@@ -60,18 +60,25 @@ class SupplierCSVExportView(View):
         if name:
             queryset = queryset.filter(name__icontains=name)
 
-        # 3. Cria o HttpResponse com content_type de CSV
-        response = HttpResponse(content_type='text/csv')
+        # 3. Cria o HttpResponse com content_type de CSV e charset UTF-8
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
         # 4. Define o cabeçalho para download
         response['Content-Disposition'] = 'attachment; filename="suppliers.csv"'
+
+        # 5. Escreve o BOM para garantir reconhecimento de UTF-8 por aplicativos como Excel
+        response.write('\ufeff')  # BOM
 
         writer = csv.writer(response)
         # Cabeçalho do CSV
         writer.writerow(['ID', 'Nome', 'Descrição'])
 
-        # 5. Escreve as linhas com base no QuerySet filtrado
+        # 6. Escreve as linhas com base no QuerySet filtrado
         for supplier in queryset:
-            writer.writerow([supplier.id, supplier.name, supplier.description])
+            writer.writerow([
+                supplier.id,
+                supplier.name if supplier.name else '',
+                supplier.description if supplier.description else ''
+            ])
 
         return response
 

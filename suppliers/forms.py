@@ -11,7 +11,7 @@ class SupplierForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description' : forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             }
-        label = {
+        labels = {
             'name': 'Nome',
             'description': 'Descrição'
         }

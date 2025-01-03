@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
 {% block title %}
-SGE - Marcas 
+SGE - Entradas
 {% endblock %}
 
 {% block content %}
 
 <div class="row mb-3">
     <div class="col-md-6">
-        <form method="get" action="{% url 'brand_list' %}">
+        <form method="get" action="{% url 'inflow_list' %}">
             <div class="input-group">
-                <input type="text" class="form-control" name="name" placeholder="Nome" value="{{ request.GET.name }}">
+                <input type="text" class="form-control" name="product" placeholder="Produto" value="{{ request.GET.product }}">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-search"></i>
                 </button>
@@ -18,18 +18,18 @@ SGE - Marcas
         </form>
     </div>
     <div class="col-md-6">
-        <a href="{% url 'brand_create' %}" class="btn btn-success float-end">
-            <i class="bi bi-plus"></i>Nova Marca</a>
+        <a href="{% url 'inflow_create' %}" class="btn btn-success float-end">
+            <i class="bi bi-plus"></i>Nova Entrada</a>
     </div>
 </div>
 
 <!-- Botões para exportar CSV / Excel -->
 <div class="mb-3">
     <!-- Observe que passamos ?name={{ request.GET.name }} na URL -->
-    <a href="{% url 'brand_csv_export' %}?name={{ request.GET.name }}" class="btn btn-primary">
+    <a href="{% url 'inflow_csv_export' %}?name={{ request.GET.name }}" class="btn btn-primary">
         <i class="bi bi-file-earmark-spreadsheet-fill"></i> Exportar CSV
     </a>
-    <a href="{% url 'brand_excel_export' %}?name={{ request.GET.name }}" class="btn btn-success me-2">
+    <a href="{% url 'inflow_excel_export' %}?name={{ request.GET.name }}" class="btn btn-success me-2">
         <i class="bi bi-file-earmark-excel-fill"></i> Exportar Excel
     </a>
 </div>
@@ -39,28 +39,24 @@ SGE - Marcas
         <thead class="thead-dark">
             <tr>
                 <th>ID</th>
-                <th>Nome</th>
-                <th>Descrição</th>
+                <th>Produto</th>
+                <th>Fornecedor</th>
+                <th>Quantidade</th>
+                <th>Data de entrada</th>
                 <th>Ações</th>
             </tr>
         </thead>
         <tbody>
-            {% for brand in brands %}
+            {% for inflow in inflows %}
             <tr>
-                <td>{{ brand.id }}</td>
-                <td>{{ brand.name }}</td>
-                <td>{{ brand.description }}</td>
+                <td>{{ inflow.id }}</td>
+                <td>{{ inflow.product }}</td>
+                <td>{{ inflow.supplier }}</td>
+                <td>{{ inflow.quantity }}</td>
+                <td>{{ inflow.created_at }}</td>
                 <td>
-                    <a href="{% url 'brand_detail' brand.id  %}" class="btn btn-info btn-sm">
+                    <a href="{% url 'inflow_detail' inflow.id  %}" class="btn btn-info btn-sm">
                         <i class="bi bi-eye"></i>
-                    </a>
-
-                    <a href="{% url 'brand_update' brand.id  %}" class="btn btn-warning btn-sm">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-
-                    <a href="{% url 'brand_delete' brand.id  %}" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i>
                     </a>
 
                 </td>

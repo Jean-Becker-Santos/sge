@@ -60,18 +60,25 @@ class BrandCSVExportView(View):
         if name:
             queryset = queryset.filter(name__icontains=name)
 
-        # 3. Cria o HttpResponse com content_type de CSV
-        response = HttpResponse(content_type='text/csv')
+        # 3. Cria o HttpResponse com content_type de CSV e charset UTF-8
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
         # 4. Define o cabeçalho para download
         response['Content-Disposition'] = 'attachment; filename="brands.csv"'
+
+        # 5. Escreve o BOM para garantir reconhecimento de UTF-8 por aplicativos como Excel
+        response.write('\ufeff')  # BOM
 
         writer = csv.writer(response)
         # Cabeçalho do CSV
         writer.writerow(['ID', 'Nome', 'Descrição'])
 
-        # 5. Escreve as linhas com base no QuerySet filtrado
+        # 6. Escreve as linhas com base no QuerySet filtrado
         for brand in queryset:
-            writer.writerow([brand.id, brand.name, brand.description])
+            writer.writerow([
+                brand.id,
+                brand.name,
+                brand.description
+            ])
 
         return response
 
