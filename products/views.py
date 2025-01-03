@@ -73,13 +73,13 @@ class ProductCSVExportView(View):
     mas respeitando o mesmo filtro usado na productListView.
     """
     def get(self, request, *args, **kwargs):
-        # 1. Capturar o parâmetro 'name' da URL (caso exista).
-        name = request.GET.get('name', '')
+        # 1. Capturar o parâmetro 'title' da URL (caso exista).
+        title = request.GET.get('title', '')
 
         # 2. Iniciar o QuerySet e aplicar o filtro, se houver.
         queryset = Product.objects.all()
-        if name:
-            queryset = queryset.filter(name__icontains=name)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
 
         # 3. Cria o HttpResponse com content_type de CSV e charset UTF-8
         response = HttpResponse(content_type='text/csv; charset=utf-8')
@@ -91,14 +91,24 @@ class ProductCSVExportView(View):
 
         writer = csv.writer(response)
         # Cabeçalho do CSV
-        writer.writerow(['ID', 'Nome', 'Descrição'])
+        writer.writerow(['ID', 'Produto', 'Categoria', 'Marca', 'Descrição',
+                         'Número de Série', 'Preço de Custo', 'Preço de Venda',
+                         'Data de Criação', 'Data de Atualização', 'Quantidade'])
 
         # 6. Escreve as linhas com base no QuerySet filtrado
         for product in queryset:
             writer.writerow([
                 product.id,
-                product.name,
-                product.description
+                product.title,
+                product.category,
+                product.brand,
+                product.description,
+                product.serie_number,
+                product.cost_price,
+                product.selling_price,
+                product.created_at,
+                product.updated_at,
+                product.quantity
             ])
 
         return response
@@ -110,13 +120,13 @@ class ProductExcelExportView(View):
     mas respeitando o mesmo filtro usado na productListView.
     """
     def get(self, request, *args, **kwargs):
-        # 1. Capturar o parâmetro 'name' da URL (caso exista).
-        name = request.GET.get('name', '')
+        # 1. Capturar o parâmetro 'title' da URL (caso exista).
+        title = request.GET.get('title', '')
 
         # 2. Iniciar o QuerySet e aplicar o filtro, se houver.
         queryset = Product.objects.all()
-        if name:
-            queryset = queryset.filter(name__icontains=name)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
 
         # 3. Cria uma planilha nova
         workbook = Workbook()
@@ -125,15 +135,29 @@ class ProductExcelExportView(View):
 
         # Define o cabeçalho
         worksheet['A1'] = 'ID'
-        worksheet['B1'] = 'Nome'
-        worksheet['C1'] = 'Descrição'
+        worksheet['B1'] = 'Produto'
+        worksheet['C1'] = 'Categoria'
+        worksheet['D1'] = 'Descrição'
+        worksheet['E1'] = 'Número de Série'
+        worksheet['F1'] = 'Preço de Custo'
+        worksheet['G1'] = 'Preço de Venda'
+        worksheet['H1'] = 'Data de Criação'
+        worksheet['I1'] = 'Data de Atualização'
+        worksheet['J1'] = 'Quantidade'
 
         # 4. Preenche os dados filtrados
         row_num = 2
         for product in queryset:
             worksheet.cell(row=row_num, column=1, value=product.id)
-            worksheet.cell(row=row_num, column=2, value=product.name)
-            worksheet.cell(row=row_num, column=3, value=product.description)
+            worksheet.cell(row=row_num, column=2, value=product.title)
+            worksheet.cell(row=row_num, column=3, value=str(product.category))
+            worksheet.cell(row=row_num, column=4, value=product.description)
+            worksheet.cell(row=row_num, column=5, value=product.serie_number)
+            worksheet.cell(row=row_num, column=6, value=product.cost_price)
+            worksheet.cell(row=row_num, column=7, value=product.selling_price)
+            worksheet.cell(row=row_num, column=8, value=product.created_at)  
+            worksheet.cell(row=row_num, column=9, value=product.updated_at) 
+            worksheet.cell(row=row_num, column=10, value=product.quantity)          
             row_num += 1
 
         # 5. Prepara o HttpResponse para enviar como arquivo .xlsx
