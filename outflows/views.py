@@ -1,17 +1,20 @@
 import csv
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views import View
 from django.http import HttpResponse
 from openpyxl import Workbook
 from outflows.models import Outflow
 from . import forms 
+from app import metrics
 
-class OutflowListView(ListView):
+class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Outflow
     template_name = 'outflow_list.html'
     context_object_name = 'outflows'
     paginate_by = 10
+    permission_required = 'outflows.view_outflow'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -21,20 +24,28 @@ class OutflowListView(ListView):
             queryset = queryset.filter(product__title__icontains=product)
 
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sales_metrics'] = metrics.get_sales_metrics()
+        return context
 
-class OutflowCreateView(CreateView):
+class OutflowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Outflow
     template_name = 'outflow_create.html' 
     form_class = forms.OutflowForm
     success_url = reverse_lazy('outflow_list')
+    permission_required = 'outflows.add_outflow'
 
 
-class OutflowDetailView(DetailView):
+class OutflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Outflow
     template_name = 'outflow_detail.html'
+    permission_required = 'outflows.delete_outflow'
 
 
-class OutflowCSVExportView(View):
+class OutflowCSVExportView(LoginRequiredMixin, View):
+    permission_required = 'outflows.view_outflow'
     """
     Retorna um arquivo CSV contendo a lista de 'outflow', 
     mas respeitando o mesmo filtro usado na outflowListView.
@@ -73,7 +84,8 @@ class OutflowCSVExportView(View):
         return response
 
 
-class OutflowExcelExportView(View):
+class OutflowExcelExportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'outflows.view_outflow'
     """
     Retorna um arquivo Excel (XLSX) contendo a lista de 'outflow', 
     mas respeitando o mesmo filtro usado na outflowListView.

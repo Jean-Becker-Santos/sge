@@ -1,5 +1,6 @@
 import csv
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views import View
 from django.http import HttpResponse
@@ -8,12 +9,14 @@ from products.models import Product
 from . import forms 
 from brands.models import Brand
 from categories.models import Category
+from app import metrics
 
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Product
     template_name = 'product_list.html'
     context_object_name = 'products'
     paginate_by = 10
+    permission_required = 'products.view_product'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -38,36 +41,42 @@ class ProductListView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['product_metrics'] = metrics.get_product_metrics()
         context['categories'] = Category.objects.all()
         context['brands'] = Brand.objects.all()
         
         return context
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Product
     template_name = 'product_create.html' 
     form_class = forms.ProductForm
     success_url = reverse_lazy('product_list')
+    permission_required = 'products.add_product'
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Product
     template_name = 'product_detail.html'
+    permission_required = 'products.view_product'
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Product
     template_name = 'product_update.html'
     form_class = forms.ProductForm
     success_url = reverse_lazy('product_list')
+    permission_required = 'products.change_product'
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Product
     template_name = 'product_delete.html'
     success_url = reverse_lazy('product_list')
+    permission_required = 'products.delete_product'
 
 
-class ProductCSVExportView(View):
+class ProductCSVExportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'products.view_product'
     """
     Retorna um arquivo CSV contendo a lista de 'product', 
     mas respeitando o mesmo filtro usado na productListView.
@@ -114,7 +123,8 @@ class ProductCSVExportView(View):
         return response
 
 
-class ProductExcelExportView(View):
+class ProductExcelExportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'products.view_product'
     """
     Retorna um arquivo Excel (XLSX) contendo a lista de 'product', 
     mas respeitando o mesmo filtro usado na productListView.

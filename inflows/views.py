@@ -1,5 +1,6 @@
 import csv
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views import View
 from django.http import HttpResponse
@@ -7,11 +8,12 @@ from openpyxl import Workbook
 from inflows.models import Inflow
 from . import forms 
 
-class InflowListView(ListView):
+class InflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Inflow
     template_name = 'inflow_list.html'
     context_object_name = 'inflows'
     paginate_by = 10
+    permission_required = 'inflows.view_inflow'
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -22,19 +24,22 @@ class InflowListView(ListView):
 
         return queryset
 
-class InflowCreateView(CreateView):
+class InflowCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Inflow
     template_name = 'inflow_create.html' 
     form_class = forms.InflowForm
     success_url = reverse_lazy('inflow_list')
+    permission_required = 'inflows.view_inflow'
 
 
-class InflowDetailView(DetailView):
+class InflowDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     model = Inflow
     template_name = 'inflow_detail.html'
+    permission_required = 'inflows.view_inflow'
 
 
-class InflowCSVExportView(View):
+class InflowCSVExportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'inflows.view_inflow'
     """
     Retorna um arquivo CSV contendo a lista de 'Inflow', 
     mas respeitando o mesmo filtro usado na InflowListView.
@@ -74,7 +79,8 @@ class InflowCSVExportView(View):
         return response
 
 
-class InflowExcelExportView(View):
+class InflowExcelExportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'inflows.view_inflow'
     """
     Retorna um arquivo Excel (XLSX) contendo a lista de 'Inflow', 
     mas respeitando o mesmo filtro usado na InflowListView.

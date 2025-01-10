@@ -6,6 +6,9 @@ SGE - Saída
 
 {% block content %}
 
+{% include 'components/_sales_metrics.html' %}
+<div class="mb-4"></div>
+
 <div class="row mb-3">
     <div class="col-md-6">
         <form method="get" action="{% url 'outflow_list' %}">
@@ -17,10 +20,13 @@ SGE - Saída
             </div>
         </form>
     </div>
-    <div class="col-md-6">
-        <a href="{% url 'outflow_create' %}" class="btn btn-success float-end">
-            <i class="bi bi-plus"></i>Nova Saída</a>
-    </div>
+
+    {% if perms.outflows.add_outflow %}
+        <div class="col-md-6">
+            <a href="{% url 'outflow_create' %}" class="btn btn-success float-end">
+                <i class="bi bi-plus"></i>Nova Saída</a>
+        </div>
+    {% endif %}
 </div>
 
 <!-- Botões para exportar CSV / Excel -->
@@ -53,9 +59,12 @@ SGE - Saída
                 <td>{{ outflow.quantity }}</td>
                 <td>{{ outflow.created_at }}</td>
                 <td>
-                    <a href="{% url 'outflow_detail' outflow.id  %}" class="btn btn-info btn-sm">
-                        <i class="bi bi-eye"></i>
-                    </a>
+                    
+                    {% if perms.outflows.view_outflow %}
+                        <a href="{% url 'outflow_detail' outflow.id  %}" class="btn btn-info btn-sm">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    {% endif %}
 
                 </td>
             </tr>
