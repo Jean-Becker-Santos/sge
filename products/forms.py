@@ -6,17 +6,16 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = models.Product
-        fields = ['title', 'category', 'brand','description', 'serie_number', 
+        fields = ['title', 'category', 'brand', 'description', 'serie_number',
                   'cost_price', 'selling_price']
         widgets = {
-            'title' : forms.TextInput(attrs={'class': 'form-control', 'rows': 3}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'rows': 3}),
             'category': forms.Select(attrs={'class': 'form-control'}),
             'brand': forms.Select(attrs={'class': 'form-control'}),
-            'description' : forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'serie_number' : forms.TextInput(attrs={'class': 'form-control', 'rows': 3}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'serie_number': forms.TextInput(attrs={'class': 'form-control', 'rows': 3}),
             'cost_price': forms.NumberInput(attrs={'class': 'form-control'}),
-            'selling_price': forms.NumberInput(attrs={'class': 'form-control'}),
-            }
+            'selling_price': forms.NumberInput(attrs={'class': 'form-control'}), }
         labels = {
             'title': 'Produto',
             'category': 'Categoria',

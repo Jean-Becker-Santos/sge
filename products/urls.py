@@ -9,4 +9,7 @@ urlpatterns = [
     path('products/<int:pk>/delete/', views.ProductDeleteView.as_view(), name='product_delete'),
     path('products/export_csv/', views.ProductCSVExportView.as_view(), name='product_csv_export'),
     path('products/export_excel/', views.ProductExcelExportView.as_view(), name='product_excel_export'),
+
+    path('api/v1/products/', views.ProductCreateListAPIView.as_view(), name='product_create_list_api_view'),
+    path('api/v1/products/<int:pk>/', views.ProductRetrieveUpdateDestroyView.as_view(), name='product_retrieve_delete_api_view'),
 ]

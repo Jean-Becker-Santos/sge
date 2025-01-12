@@ -9,4 +9,5 @@ urlpatterns = [
     path('categories/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='category_delete'),
     path('categories/export_csv/', views.CategoryCSVExportView.as_view(), name='category_csv_export'),
     path('categories/export_excel/', views.CategoryExcelExportView.as_view(), name='category_excel_export'),
-]
+    path('api/v1/categories/', views.CategoryCreateListAPIView.as_view(), name='category_create_list_api_view'),
+    path('api/v1/categories/<int:pk>/', views.CategoryRetrieveUpdateDestroyView.as_view(), name='category_retrieve_delete_api_view'), ]
