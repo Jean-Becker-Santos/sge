@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'products',
     'inflows',
     'outflows',
+
+   
 ]
 
 LOGIN_URL = 'login'
@@ -84,13 +86,17 @@ WSGI_APPLICATION = 'app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sge',         # Substitua pelo nome do seu banco de dados
-        'USER': 'postgres',          # Usuário correto
-        'PASSWORD': 'gold@0993',   # Senha atualizada
+        'NAME': 'sge',
+        'USER': 'postgres',
+        'PASSWORD': 'gold@0993',
         'HOST': 'localhost',
         'PORT': '5432',
+        'OPTIONS': {
+            'client_encoding': 'UTF8',
+        },
     }
 }
+
 
 
 # Password validation
@@ -148,3 +154,16 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7)
 }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 60 * 15,  # 15 minutos, por exemplo
+    }
+}
+
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = '.'  # ou ',' dependendo do seu locale
+
