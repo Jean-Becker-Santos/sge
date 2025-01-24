@@ -9,6 +9,7 @@ from openpyxl import Workbook
 from inflows.models import Inflow
 from inflows.serializers import InflowSerializer
 from . import forms
+from django.shortcuts import redirect
 
 
 class InflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -18,13 +19,33 @@ class InflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     paginate_by = 10
     permission_required = 'inflows.view_inflow'
 
+    def get(self, request, *args, **kwargs):
+        page = request.GET.get('page', '')
+        if '.' in page:
+            # Remove todos os '.' do valor, por exemplo '151.757' => '151757'
+            page_no_dot = page.replace('.', '')
+
+            # Se por acaso ficar vazio (caso fosse só '.')
+            if page_no_dot == '':
+                page_no_dot = '1'
+            
+            # Fazemos cópia dos parâmetros GET e alteramos somente 'page'
+            query_dict = request.GET.copy()
+            query_dict['page'] = page_no_dot
+            new_query = query_dict.urlencode()  # ex.: product=abc&page=151757
+            
+            # Redireciona para a mesma rota com a query "corrigida"
+            # Se quiser redirecionamento permanente, use HttpResponsePermanentRedirect
+            return redirect(f"{request.path}?{new_query}")
+
+        # Caso não tenha '.', segue comportamento normal
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
         queryset = super().get_queryset()
         product = self.request.GET.get('product')
-
         if product:
             queryset = queryset.filter(product__title__icontains=product)
-
         return queryset
 
 

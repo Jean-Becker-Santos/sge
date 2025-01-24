@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.urls import reverse_lazy
 from django.views import View
 from django.http import HttpResponse
+from django.shortcuts import redirect
 from rest_framework import generics
 from openpyxl import Workbook
 from outflows.models import Outflow
@@ -18,6 +19,27 @@ class OutflowListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = 'outflows'
     paginate_by = 10
     permission_required = 'outflows.view_outflow'
+
+    def get(self, request, *args, **kwargs):
+        page = request.GET.get('page', '')
+        if '.' in page:
+            # Remove todos os pontos (.) do valor
+            # Ex: '151.757' => '151757'
+            page_no_dot = page.replace('.', '')
+
+            # Se por acaso virar string vazia, define como '1'
+            if page_no_dot == '':
+                page_no_dot = '1'
+
+            # Clonamos a QueryDict atual e alteramos apenas o 'page'
+            query_dict = request.GET.copy()
+            query_dict['page'] = page_no_dot
+            new_query = query_dict.urlencode()  # Ex: product=xyz&page=151757
+
+            # Redirecionamos para a URL correta (HTTP 302 ou 301 se preferir)
+            return redirect(f"{request.path}?{new_query}")
+
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         queryset = super().get_queryset()
